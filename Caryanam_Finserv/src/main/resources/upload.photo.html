@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document Upload</title>
+
+    <style>
+
+        body{
+            font-family: Arial, sans-serif;
+            background:#f4f4f4;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            min-height:100vh;
+            margin:0;
+            padding:20px;
+        }
+
+        .container{
+            width:450px;
+            background:white;
+            padding:25px;
+            border-radius:10px;
+            box-shadow:0 0 10px rgba(0,0,0,0.1);
+        }
+
+        h2{
+            text-align:center;
+            margin-bottom:20px;
+        }
+
+        input,
+        select,
+        button{
+            width:100%;
+            padding:12px;
+            margin-top:12px;
+            border-radius:5px;
+            border:1px solid #ccc;
+            box-sizing:border-box;
+            font-size:15px;
+        }
+
+        button{
+            background:#007bff;
+            color:white;
+            border:none;
+            cursor:pointer;
+        }
+
+        button:hover{
+            background:#0056b3;
+        }
+
+        .success{
+            color:green;
+            text-align:center;
+            margin-top:15px;
+            font-weight:bold;
+        }
+
+        .error{
+            color:red;
+            text-align:center;
+            margin-top:15px;
+            font-weight:bold;
+        }
+
+        .preview-box{
+            margin-top:25px;
+            text-align:center;
+        }
+
+        .preview-box img{
+            width:100%;
+            max-height:350px;
+            object-fit:contain;
+            border:1px solid #ddd;
+            border-radius:10px;
+            padding:5px;
+            background:#fafafa;
+        }
+
+        .file-name{
+            margin-top:10px;
+            font-weight:bold;
+            color:#333;
+        }
+
+    </style>
+
+</head>
+<body>
+
+<div class="container">
+
+    <h2>Upload Photo</h2>
+
+    <!-- LOAN ID -->
+    <input type="number"
+           id="loanId"
+           placeholder="Enter Loan ID">
+
+    <!-- TYPE -->
+    <select id="type">
+        <option value="">Select Document Type</option>
+        <option value="AADHAR">AADHAR</option>
+        <option value="PAN">PAN</option>
+        <option value="PHOTO">PHOTO</option>
+        <option value="SALARY_SLIP">SALARY_SLIP</option>
+        <option value="BANK_STATEMENT">BANK_STATEMENT</option>
+    </select>
+
+    <!-- FILE -->
+    <input type="file"
+           id="file"
+           accept="image/*">
+
+    <!-- BUTTON -->
+    <button onclick="uploadDocument()">
+        Upload Photo
+    </button>
+
+    <!-- MESSAGE -->
+    <div id="message"></div>
+
+    <!-- PREVIEW -->
+    <div class="preview-box">
+
+        <h3 id="previewTitle"
+            style="display:none;">
+            Uploaded Photo
+        </h3>
+
+        <img id="previewImage"
+             src=""
+             alt="Preview"
+             style="display:none;">
+
+        <div id="fileName"
+             class="file-name">
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+    async function uploadDocument(){
+
+        const loanId =
+            document.getElementById("loanId").value;
+
+        const type =
+            document.getElementById("type").value;
+
+        const file =
+            document.getElementById("file").files[0];
+
+        const messageDiv =
+            document.getElementById("message");
+
+        const previewImage =
+            document.getElementById("previewImage");
+
+        const previewTitle =
+            document.getElementById("previewTitle");
+
+        const fileName =
+            document.getElementById("fileName");
+
+        // RESET
+        messageDiv.innerHTML = "";
+
+        // VALIDATION
+        if(!loanId || !type || !file){
+
+            messageDiv.innerHTML =
+                "<div class='error'>Please fill all fields</div>";
+
+            return;
+        }
+
+        // ONLY IMAGE VALIDATION
+        if(!file.type.startsWith("image/")){
+
+            messageDiv.innerHTML =
+                "<div class='error'>Please select image file only</div>";
+
+            return;
+        }
+
+        // FORM DATA
+        const formData = new FormData();
+
+        formData.append("loanId", loanId);
+        formData.append("type", type);
+        formData.append("file", file);
+
+        try{
+
+            const response = await fetch(
+                "http://localhost:8081/api/documents/upload",
+                {
+                    method:"POST",
+                    body:formData
+                }
+            );
+
+            const data = await response.json();
+
+            console.log(data);
+
+            if(response.ok){
+
+                // SUCCESS MESSAGE
+                messageDiv.innerHTML =
+                    "<div class='success'>Photo Uploaded Successfully</div>";
+
+                // SHOW IMAGE PREVIEW
+                const imageURL =
+                    URL.createObjectURL(file);
+
+                previewImage.src = imageURL;
+
+                previewImage.style.display = "block";
+
+                previewTitle.style.display = "block";
+
+                // SHOW FILE NAME
+                fileName.innerHTML =
+                    "File Name : " + file.name;
+
+            }else{
+
+                messageDiv.innerHTML =
+                    "<div class='error'>" +
+                    data.message +
+                    "</div>";
+            }
+
+        }catch(error){
+
+            console.log(error);
+
+            messageDiv.innerHTML =
+                "<div class='error'>Upload Failed</div>";
+        }
+    }
+
+</script>
+
+</body>
+</html>
