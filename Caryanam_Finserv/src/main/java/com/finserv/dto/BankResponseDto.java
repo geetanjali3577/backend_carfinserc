@@ -1,15 +1,10 @@
-package com.finserv.entity;
+package com.finserv.dto;
 
-import jakarta.persistence.*;
 import lombok.Data;
 
-@Entity
-@Table(name = "banks")
 @Data
-public class Bank {
+public class BankResponseDto {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long bankId;
 
     private String bankName;
@@ -19,6 +14,5 @@ public class Bank {
     private String contactNumber;
 
     private String email;
-
 
 }
