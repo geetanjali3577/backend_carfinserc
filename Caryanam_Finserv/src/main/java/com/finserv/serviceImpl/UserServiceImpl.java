@@ -15,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -28,48 +29,161 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    //====================================================
+    // GENERATE APPLICATION ID
+    //====================================================
+    @Override
+    public String generateApplicationId() {
+
+        Optional<User> lastUser =
+                userRepository.findTopByOrderByUserIdDesc();
+
+        int nextNumber = 1;
+
+        if (lastUser.isPresent()
+                && lastUser.get().getApplicationId() != null) {
+
+            String lastApplicationId =
+                    lastUser.get().getApplicationId();
+
+            String numberPart =
+                    lastApplicationId.substring(7);
+
+            nextNumber =
+                    Integer.parseInt(numberPart) + 1;
+        }
+
+        return String.format(
+                "CRY2026%04d",
+                nextNumber
+        );
+    }
+
+    //====================================================
+    // REGISTER USER
+    //====================================================
     @Override
     public UserResponseDTO registerUser(UserRegisterDTO dto) {
 
         if (userRepository.existsByEmail(dto.getEmail())) {
             throw new RuntimeException("Email Already Exists");
         }
-        if (userRepository.existsByMobileNumber(dto.getMobileNumber())) {
-            throw new RuntimeException("Mobile Number Already Exists");
+
+        if (userRepository.existsByMobileNumber(
+                dto.getMobileNumber())) {
+
+            throw new RuntimeException(
+                    "Mobile Number Already Exists"
+            );
         }
-        if (dto.getRegistrationType() == RegistrationType.DEALER) {
-            if (dto.getDealerCode() == null || dto.getDealerCode().trim().isEmpty()) {
-                throw new RuntimeException("Dealer Code is Required");
+
+        if (dto.getRegistrationType()
+                == RegistrationType.DEALER) {
+
+            if (dto.getDealerCode() == null
+                    || dto.getDealerCode()
+                    .trim()
+                    .isEmpty()) {
+
+                throw new RuntimeException(
+                        "Dealer Code is Required"
+                );
             }
-            if (!dealerRepository.existsByDealerCode(dto.getDealerCode())) {
-                throw new RuntimeException("Invalid Dealer Code");
+
+            if (!dealerRepository.existsByDealerCode(
+                    dto.getDealerCode())) {
+
+                throw new RuntimeException(
+                        "Invalid Dealer Code"
+                );
             }
         }
+
         User user = new User();
+
         user.setFullName(dto.getFullName());
-        user.setEmail(dto.getEmail().toLowerCase().trim());
+
+        user.setEmail(
+                dto.getEmail()
+                        .toLowerCase()
+                        .trim()
+        );
+
         user.setMobileNumber(dto.getMobileNumber());
-        user.setPassword(passwordEncoder.encode(dto.getPassword()));
-        user.setRegistrationType(dto.getRegistrationType());
 
-        // Save Dealer Code only if DEALER type
-        if (dto.getRegistrationType() == RegistrationType.DEALER) {
-            user.setDealerCode(dto.getDealerCode());}
+        user.setPassword(
+                passwordEncoder.encode(
+                        dto.getPassword()
+                )
+        );
+
+        user.setRegistrationType(
+                dto.getRegistrationType()
+        );
+
+        // AUTO APPLICATION ID
+        user.setApplicationId(
+                generateApplicationId()
+        );
+
+        // SAVE DEALER CODE
+        if (dto.getRegistrationType()
+                == RegistrationType.DEALER) {
+
+            user.setDealerCode(
+                    dto.getDealerCode()
+            );
+        }
+
         user.setRole(Role.USER);
+
         user.setStatus(UserStatus.ACTIVE);
+
         user.setCreatedAt(LocalDateTime.now());
-        User savedUser = userRepository.save(user);
 
+        User savedUser =
+                userRepository.save(user);
 
-        UserResponseDTO response = new UserResponseDTO();
-        response.setUserId(savedUser.getUserId());
-        response.setFullName(savedUser.getFullName());
-        response.setEmail(savedUser.getEmail());
-        response.setMobileNumber(savedUser.getMobileNumber());
-        response.setRegistrationType(savedUser.getRegistrationType().name());
-        response.setDealerCode(savedUser.getDealerCode());
-        response.setRole(savedUser.getRole().name());
-        response.setCreatedAt(savedUser.getCreatedAt());
+        UserResponseDTO response =
+                new UserResponseDTO();
+
+        response.setUserId(
+                savedUser.getUserId()
+        );
+
+        response.setApplicationId(
+                savedUser.getApplicationId()
+        );
+
+        response.setFullName(
+                savedUser.getFullName()
+        );
+
+        response.setEmail(
+                savedUser.getEmail()
+        );
+
+        response.setMobileNumber(
+                savedUser.getMobileNumber()
+        );
+
+        response.setRegistrationType(
+                savedUser.getRegistrationType().name()
+        );
+
+        response.setDealerCode(
+                savedUser.getDealerCode()
+        );
+
+        response.setRole(
+                savedUser.getRole().name()
+        );
+
+        response.setCreatedAt(
+                savedUser.getCreatedAt()
+        );
+
         return response;
     }
+
 }
