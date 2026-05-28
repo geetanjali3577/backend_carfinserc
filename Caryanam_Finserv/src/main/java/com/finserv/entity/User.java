@@ -30,7 +30,7 @@ public class User {
     // DEALER or INDIVIDUAL
     @Enumerated(EnumType.STRING)
     private RegistrationType registrationType;
-
+    
     // Dealer Code
     private String dealerCode;
 
@@ -42,6 +42,12 @@ public class User {
 
     private LocalDateTime createdAt;
 
+    @Column(
+            name = "application_id",
+            unique = true,
+            nullable = false
+    )
+    private String applicationId;
 
 
     @PrePersist

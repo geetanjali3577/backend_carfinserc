@@ -1,13 +1,19 @@
 package com.finserv.service;
 
-import com.finserv.dto.*;
-import java.util.List;
+import com.finserv.dto.UserRegisterDTO;
+import com.finserv.dto.UserResponseDTO;
 
 public interface UserService {
-    UserResponseDTO registerUser(UserRegisterDTO dto);
 
-    
+    //========================================
+    // REGISTER USER
+    //========================================
+    UserResponseDTO registerUser(
+            UserRegisterDTO dto
+    );
 
-
-
+    //========================================
+    // GENERATE APPLICATION ID
+    //========================================
+    String generateApplicationId();
 }

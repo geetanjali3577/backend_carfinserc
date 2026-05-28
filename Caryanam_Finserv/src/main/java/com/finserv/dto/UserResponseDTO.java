@@ -1,14 +1,15 @@
 package com.finserv.dto;
 
-import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDateTime;
 
 @Data
-
 public class UserResponseDTO {
+
     private Long userId;
+
+    private String applicationId;
 
     private String fullName;
 
@@ -25,7 +26,5 @@ public class UserResponseDTO {
     private String role;
 
     private LocalDateTime createdAt;
-
-
 
 }
