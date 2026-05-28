@@ -16,6 +16,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/user")
 @RequiredArgsConstructor
@@ -271,5 +273,138 @@ public class UserController {
                 ));
     }
 
+    // GET BY ID
 
+    @GetMapping("/{id}")
+    public ResponseEntity<ResponseDto<UserResponseDTO>> getUserById(@PathVariable Long id) {
+
+        // ID validation
+        if (id == null || id <= 0) {
+            return ResponseEntity.badRequest()
+                    .body(new ResponseDto<>(400, "Valid User Id is Required", null));
+        }
+
+        UserResponseDTO response = userService.getUserById(id);
+
+        return ResponseEntity.ok(
+                new ResponseDto<>(200, "User Found Successfully", response)
+        );
+    }
+
+    //GET ALL USER
+
+    @GetMapping("/all")
+    public ResponseEntity<ResponseDto<List<UserResponseDTO>>> getAllUsers() {
+
+        List<UserResponseDTO> response = userService.getAllUsers();
+
+        if (response == null || response.isEmpty()) {
+            return ResponseEntity.ok(
+                    new ResponseDto<>(200, "No Users Found", response)
+            );
+        }
+
+        return ResponseEntity.ok(
+                new ResponseDto<>(200, "All Users Fetched Successfully", response)
+        );
+    }
+
+    //UPDATE USER
+
+    @PutMapping("/update/{id}")
+    public ResponseEntity<ResponseDto<UserResponseDTO>> updateUser(
+            @PathVariable Long id,
+            @RequestBody UserRegisterDTO dto
+    ) {
+
+        // ======================
+        // 1. ID VALIDATION
+        // ======================
+        if (id == null || id <= 0) {
+            return ResponseEntity.badRequest()
+                    .body(new ResponseDto<>(400, "Valid User Id is Required", null));
+        }
+
+        // ======================
+        // 2. DTO NULL CHECK
+        // ======================
+        if (dto == null) {
+            return ResponseEntity.badRequest()
+                    .body(new ResponseDto<>(400, "Request Body is Missing", null));
+        }
+
+        // ======================
+        // 3. FULL NAME VALIDATION (WITH SIZE)
+        // ======================
+        if (dto.getFullName() == null || dto.getFullName().trim().isEmpty()) {
+            return ResponseEntity.badRequest()
+                    .body(new ResponseDto<>(400, "Name is Required", null));
+        }
+
+        if (dto.getFullName().length() < 3 || dto.getFullName().length() > 50) {
+            return ResponseEntity.badRequest()
+                    .body(new ResponseDto<>(400, "Name must be 3 to 50 characters", null));
+        }
+
+        // ======================
+        // 4. EMAIL VALIDATION (WITH SIZE)
+        // ======================
+        if (dto.getEmail() == null || dto.getEmail().trim().isEmpty()) {
+            return ResponseEntity.badRequest()
+                    .body(new ResponseDto<>(400, "Email is Required", null));
+        }
+
+        if (dto.getEmail().length() > 100) {
+            return ResponseEntity.badRequest()
+                    .body(new ResponseDto<>(400, "Email must not exceed 100 characters", null));
+        }
+
+        // ======================
+        // 5. MOBILE VALIDATION (WITH SIZE)
+        // ======================
+        if (dto.getMobileNumber() == null || dto.getMobileNumber().trim().isEmpty()) {
+            return ResponseEntity.badRequest()
+                    .body(new ResponseDto<>(400, "Mobile Number is Required", null));
+        }
+
+        if (dto.getMobileNumber().length() != 10) {
+            return ResponseEntity.badRequest()
+                    .body(new ResponseDto<>(400, "Mobile Number must be exactly 10 digits", null));
+        }
+
+        // ======================
+        // 6. PASSWORD VALIDATION (OPTIONAL)
+        // ======================
+        if (dto.getPassword() != null &&
+                (dto.getPassword().length() < 6 || dto.getPassword().length() > 20)) {
+
+            return ResponseEntity.badRequest()
+                    .body(new ResponseDto<>(400, "Password must be 6 to 20 characters", null));
+        }
+
+        // ======================
+        // SERVICE CALL
+        // ======================
+        UserResponseDTO response = userService.updateUser(id, dto);
+
+        return ResponseEntity.ok(
+                new ResponseDto<>(200, "User Updated Successfully", response)
+        );
+    }
+     /*   // DELETE USER
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<ResponseDto<String>> deleteUser(@PathVariable Long id) {
+
+        if (id == null || id <= 0) {
+            return ResponseEntity.badRequest()
+                    .body(new ResponseDto<>(400, "Valid User Id is Required", null));
+        }
+
+        userService.deleteUser(id);
+
+        return ResponseEntity.ok(
+                new ResponseDto<>(200, "User Deleted Successfully", "Deleted")
+        );
+    }
+    */
 }

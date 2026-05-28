@@ -25,124 +25,139 @@ public class PersonalInfoServiceImpl
     private final UserRepository userRepository;
 
     @Override
-    public Object savePersonalInfo(
-            PersonalInfoRequestDTO dto
-    ) {
+    public PersonalInfoResponseDTO savePersonalInfo(PersonalInfoRequestDTO dto) {
 
-        // USER VALIDATION
-        User user =
-                userRepository.findById(dto.getUserId())
-                        .orElseThrow(() ->
+        // =========================
+        // 1. USER VALIDATION
+        // =========================
+        User user = userRepository.findById(dto.getUserId())
+                .orElseThrow(() -> new BadRequestException("User Not Found"));
 
-                                new BadRequestException(
-                                        "User Not Found"
-                                ));
-
-        // DUPLICATE CHECK
-        if (personalInfoRepository
-                .existsByUserId(dto.getUserId())) {
-
-            throw new BadRequestException(
-                    "Personal Info Already Exists"
-            );
+        // =========================
+        // 2. DUPLICATE CHECK
+        // =========================
+        if (personalInfoRepository.existsByUser_UserId(dto.getUserId())) {
+            throw new BadRequestException("Personal Info Already Exists");
         }
 
-        PersonalInfo personalInfo =
-                new PersonalInfo();
+        // =========================
+        // 3. CREATE ENTITY
+        // =========================
+        PersonalInfo personalInfo = new PersonalInfo();
 
-        // AUTO FETCH FROM USER TABLE
-        personalInfo.setUserId(
-                user.getUserId()
-        );
+        // LINK USER
+        personalInfo.setUser(user);
 
-        personalInfo.setFullName(
-                user.getFullName()
-        );
-
-        personalInfo.setEmail(
-                user.getEmail()
-        );
-
-        personalInfo.setMobileNumber(
-                user.getMobileNumber()
-        );
+        // AUTO FETCH FROM USER
+        personalInfo.setFullName(user.getFullName());
+        personalInfo.setEmail(user.getEmail());
+        personalInfo.setMobileNumber(user.getMobileNumber());
 
         // REQUEST DATA
-        personalInfo.setAddress(
-                dto.getAddress()
-        );
+        personalInfo.setAddress(dto.getAddress());
+        personalInfo.setCity(dto.getCity());
+        personalInfo.setState(dto.getState());
+        personalInfo.setPincode(dto.getPincode());
+        personalInfo.setLoanAmount(dto.getLoanAmount());
 
-        personalInfo.setCity(
-                dto.getCity()
-        );
+        personalInfo.setCreatedAt(LocalDateTime.now());
 
-        personalInfo.setState(
-                dto.getState()
-        );
+        // =========================
+        // 4. SAVE TO DB
+        // =========================
+        PersonalInfo savedInfo = personalInfoRepository.save(personalInfo);
 
-        personalInfo.setPincode(
-                dto.getPincode()
-        );
+        // =========================
+        // 5. RESPONSE DTO
+        // =========================
+        PersonalInfoResponseDTO response = new PersonalInfoResponseDTO();
 
-        personalInfo.setLoanAmount(
-                dto.getLoanAmount()
-        );
+        response.setPersonalInfoId(savedInfo.getPersonalInfoId());
 
-        personalInfo.setCreatedAt(
-                LocalDateTime.now()
-        );
 
-        PersonalInfo savedInfo =
-                personalInfoRepository
-                        .save(personalInfo);
+        response.setUserId(savedInfo.getUser().getUserId());
 
-        // RESPONSE DTO
-        PersonalInfoResponseDTO response =
-                new PersonalInfoResponseDTO();
+        response.setFullName(savedInfo.getFullName());
+        response.setEmail(savedInfo.getEmail());
+        response.setMobileNumber(savedInfo.getMobileNumber());
 
-        response.setPersonalInfoId(
-                savedInfo.getPersonalInfoId()
-        );
+        response.setAddress(savedInfo.getAddress());
+        response.setCity(savedInfo.getCity());
+        response.setState(savedInfo.getState());
+        response.setPincode(savedInfo.getPincode());
+        response.setLoanAmount(savedInfo.getLoanAmount());
+        response.setCreatedAt(savedInfo.getCreatedAt());
 
-        response.setUserId(
-                savedInfo.getUserId()
-        );
+        return response;
 
-        response.setFullName(
-                savedInfo.getFullName()
-        );
+    }
 
-        response.setEmail(
-                savedInfo.getEmail()
-        );
 
-        response.setMobileNumber(
-                savedInfo.getMobileNumber()
-        );
+    //UPDATED INFO
 
-        response.setAddress(
-                savedInfo.getAddress()
-        );
 
-        response.setCity(
-                savedInfo.getCity()
-        );
+    @Override
+    public PersonalInfoResponseDTO updatePersonalInfo(Long userId, PersonalInfoRequestDTO dto) {
 
-        response.setState(
-                savedInfo.getState()
-        );
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User Not Found"));
 
-        response.setPincode(
-                savedInfo.getPincode()
-        );
+        PersonalInfo info = user.getPersonalInfo();
 
-        response.setLoanAmount(
-                savedInfo.getLoanAmount()
-        );
+        if (info == null) {
+            info = new PersonalInfo();
+            info.setUser(user);
+            user.setPersonalInfo(info);
+        }
 
-        response.setCreatedAt(
-                savedInfo.getCreatedAt()
-        );
+        // ======================
+        // PERSONAL INFO UPDATE
+        // ======================
+        if (dto.getAddress() != null) {
+            info.setAddress(dto.getAddress());
+        }
+
+        if (dto.getCity() != null) {
+            info.setCity(dto.getCity());
+        }
+
+        if (dto.getState() != null) {
+            info.setState(dto.getState());
+        }
+
+        if (dto.getPincode() != null) {
+            info.setPincode(dto.getPincode());
+        }
+
+        if (dto.getLoanAmount() != null) {
+            info.setLoanAmount(dto.getLoanAmount());
+        }
+
+
+        if (dto.getMobileNumber() != null && !dto.getMobileNumber().isEmpty()) {
+            info.setMobileNumber(dto.getMobileNumber());
+            user.setMobileNumber(dto.getMobileNumber());
+        }
+
+        PersonalInfo saved = personalInfoRepository.save(info);
+        userRepository.save(user);
+
+        // ======================
+        // RESPONSE
+        // ======================
+        PersonalInfoResponseDTO response = new PersonalInfoResponseDTO();
+
+        response.setPersonalInfoId(saved.getPersonalInfoId());
+        response.setUserId(user.getUserId());
+        response.setFullName(user.getFullName());
+        response.setEmail(user.getEmail());
+        response.setMobileNumber(saved.getMobileNumber());
+        response.setAddress(saved.getAddress());
+        response.setCity(saved.getCity());
+        response.setState(saved.getState());
+        response.setPincode(saved.getPincode());
+        response.setLoanAmount(saved.getLoanAmount());
+        response.setCreatedAt(saved.getCreatedAt());
 
         return response;
     }

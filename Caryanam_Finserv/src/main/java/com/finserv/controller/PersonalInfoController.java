@@ -1,6 +1,7 @@
 package com.finserv.controller;
 
 import com.finserv.dto.PersonalInfoRequestDTO;
+import com.finserv.dto.PersonalInfoResponseDTO;
 import com.finserv.dto.ResponseDto;
 import com.finserv.exception.BadRequestException;
 import com.finserv.service.PersonalInfoService;
@@ -229,6 +230,22 @@ public class PersonalInfoController {
 
                         data
                 )
+        );
+    }
+
+    // UPADTED INFO
+
+    @PutMapping("/update/{userId}")
+    public ResponseEntity<ResponseDto<PersonalInfoResponseDTO>> updatePersonalInfo(
+            @PathVariable Long userId,
+            @RequestBody PersonalInfoRequestDTO dto
+    ) {
+
+        PersonalInfoResponseDTO response =
+                personalInfoService.updatePersonalInfo(userId, dto);
+
+        return ResponseEntity.ok(
+                new ResponseDto<>(200, "Personal Info Updated Successfully", response)
         );
     }
 }
