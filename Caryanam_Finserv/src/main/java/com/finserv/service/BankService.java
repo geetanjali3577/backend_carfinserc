@@ -1,24 +1,21 @@
 package com.finserv.service;
 
-import com.finserv.dto.BankRequestDTO;
-import com.finserv.dto.BankResponseDTO;
-import com.finserv.entity.Bank;
+import com.finserv.dto.BankRequestDto;
+import com.finserv.dto.BankResponseDto;
 
 import java.util.List;
 
 public interface BankService {
 
-    BankResponseDTO saveBank(BankRequestDTO dto);
+    BankResponseDto saveBank(BankRequestDto dto);
 
-    List<BankResponseDTO> getAllBanks();
+    List<BankResponseDto> getAllBanks();
 
-    BankResponseDTO getBankById(Long id);
+    BankResponseDto getBankById(Long bankId);
 
-    BankResponseDTO updateBank(Long id,
-                               BankRequestDTO dto);
+    BankResponseDto updateBank(Long bankId, BankRequestDto dto);
 
-    void deleteBank(Long id);
+    String deleteBank(Long bankId);
 
-    BankResponseDTO updateStatus(Long id,
-                                 String status);
+
 }
