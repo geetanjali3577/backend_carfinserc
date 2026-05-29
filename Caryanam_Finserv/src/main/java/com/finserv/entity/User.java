@@ -56,4 +56,9 @@ public class User {
     public void prePersist() {
         this.createdAt = LocalDateTime.now();
     }
+
+    private String otp;
+    private Boolean isOtpVerified = false;
+
+    private LocalDateTime otpGeneratedTime;
 }

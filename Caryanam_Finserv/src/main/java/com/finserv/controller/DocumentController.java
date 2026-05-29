@@ -25,33 +25,15 @@ public class DocumentController {
 
     private final DocumentService documentService;
 
-    //====================================================
+
     // UPLOAD DOCUMENT
-    //====================================================
-    @PostMapping(
-            value = "/upload",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
-    )
+
+    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ResponseDto<?>> uploadDocument(
-
-            @RequestParam("userId")
-            Long userId,
-
-            @RequestParam("type")
-            DocumentType type,
-
-            @RequestParam(
-                    value = "file",
-                    required = false
-            )
-            MultipartFile file,
-
-            @RequestParam(
-                    value = "base64",
-                    required = false
-            )
-            String base64
-    ) {
+            @RequestParam("userId") Long userId,
+            @RequestParam("type") DocumentType type,
+            @RequestParam(value = "file", required = false) MultipartFile file,
+            @RequestParam(value = "base64", required = false) String base64) {
 
         // USER ID VALIDATION
         if (userId == null || userId <= 0) {
@@ -310,7 +292,7 @@ public class DocumentController {
         );
     }
 
-    //  ADD REMARKS
+    //  ADD REMARKS USER TO ADMIN
     @PutMapping("/{documentId}/remarks")
     public ResponseEntity<ResponseDto> addRemarks(
 
@@ -330,7 +312,7 @@ public class DocumentController {
         );
     }
 
-    // GET PENDING DOCUMENTS
+    // GET PENDING DOCUMENTS TO ADMIN
     @GetMapping("/pending")
     public ResponseEntity<ResponseDto> getPendingDocuments() {
 
@@ -346,7 +328,7 @@ public class DocumentController {
         );
     }
 
-    // 🔹 GET VERIFIED DOCUMENTS
+    // 🔹 GET VERIFIED DOCUMENTS TO ADMIN
     @GetMapping("/verified")
     public ResponseEntity<ResponseDto> getVerifiedDocuments() {
 

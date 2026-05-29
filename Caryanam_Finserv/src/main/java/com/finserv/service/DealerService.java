@@ -8,6 +8,10 @@ public interface DealerService {
 
     DealerResponseDTO registerDealer(DealerRegisterDTO dto);
 
+    String sendOtp(String email);
 
+    String verifyOtp(VerifyOtpDTO dto);
+
+    String resetPassword(ResetPasswordDTO dto);
 
 }

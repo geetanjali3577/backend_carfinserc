@@ -71,12 +71,12 @@ public class DealerController {
         }
 
         // EMAIL CHARACTER LIMIT
-        if (dto.getEmail().length() > 20) {
+        if (dto.getEmail().length() > 50) {
 
             return ResponseEntity.badRequest()
                     .body(new ResponseDto<>(
                             400,
-                            "Email must be maximum 20 characters",
+                            "Email must be maximum 50 characters",
                             null
                     ));
         }
@@ -137,6 +137,42 @@ public class DealerController {
                         response
                 ));
     }
+
+    @PostMapping("/send-otp")
+    public ResponseEntity<String> sendOtp(
+            @RequestParam String email) {
+
+        return ResponseEntity.ok(
+                dealerService.sendOtp(email)
+        );
+    }
+
+
+    // VERIFY OTP
+
+
+    @PostMapping("/verify-otp")
+    public ResponseEntity<String> verifyOtp(
+            @RequestBody VerifyOtpDTO dto) {
+
+        return ResponseEntity.ok(
+                dealerService.verifyOtp(dto)
+        );
+    }
+
+
+    // RESET PASSWORD
+
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(
+            @RequestBody ResetPasswordDTO dto) {
+
+        return ResponseEntity.ok(
+                dealerService.resetPassword(dto)
+        );
+    }
+
 
 
 

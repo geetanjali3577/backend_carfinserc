@@ -1,9 +1,6 @@
 package com.finserv.controller;
 
-import com.finserv.dto.PersonalInfoResponseDTO;
-import com.finserv.dto.ResponseDto;
-import com.finserv.dto.UserRegisterDTO;
-import com.finserv.dto.UserResponseDTO;
+import com.finserv.dto.*;
 import com.finserv.entity.Dealer;
 import com.finserv.enums.DealerStatus;
 
@@ -78,12 +75,12 @@ public class UserController {
         }
 
         // EMAIL CHARACTER LIMIT
-        if (dto.getEmail().length() > 20) {
+        if (dto.getEmail().length() > 50) {
 
             return ResponseEntity.badRequest()
                     .body(new ResponseDto<>(
                             400,
-                            "Email must be maximum 20 characters",
+                            "Email must be maximum 50 characters",
                             null
                     ));
         }
@@ -425,6 +422,46 @@ public class UserController {
 
         return ResponseEntity.ok(
                 new ResponseDto<>(200, "Users Found Successfully", response)
+        );
+    }
+
+    //..........................................................................
+    // =========================
+    // SEND OTP
+    // =========================
+
+    @PostMapping("/send-otp")
+    public ResponseEntity<String> sendOtp(
+            @RequestParam String email) {
+
+        return ResponseEntity.ok(
+                userService.sendOtp(email)
+        );
+    }
+
+    // =========================
+    // VERIFY OTP
+    // =========================
+
+    @PostMapping("/verify-otp")
+    public ResponseEntity<String> verifyOtp(
+            @RequestBody VerifyOtpDTO dto) {
+
+        return ResponseEntity.ok(
+                userService.verifyOtp(dto)
+        );
+    }
+
+    // =========================
+    // RESET PASSWORD
+    // =========================
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(
+            @RequestBody ResetPasswordDTO dto) {
+
+        return ResponseEntity.ok(
+                userService.resetPassword(dto)
         );
     }
 }

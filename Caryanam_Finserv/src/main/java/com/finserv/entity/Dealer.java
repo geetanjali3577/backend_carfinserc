@@ -57,4 +57,10 @@ public class Dealer {
                         .substring(0, 6)
                         .toUpperCase();
     }
+
+    private String otp;
+
+    private LocalDateTime otpGeneratedTime;
+
+    private Boolean isOtpVerified = false;
 }

@@ -2,6 +2,9 @@ package com.finserv.serviceImpl;
 
 import com.finserv.dto.DealerRegisterDTO;
 import com.finserv.dto.DealerResponseDTO;
+import com.finserv.dto.ResetPasswordDTO;
+import com.finserv.dto.VerifyOtpDTO;
+import com.finserv.emailservice.EmailService;
 import com.finserv.entity.Dealer;
 import com.finserv.enums.DealerStatus;
 import com.finserv.enums.Role;
@@ -13,7 +16,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 public class DealerServiceImpl implements DealerService {
@@ -26,6 +31,9 @@ public class DealerServiceImpl implements DealerService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private EmailService emailService;
 
     // ================= REGISTER DEALER =================
     @Override
@@ -57,6 +65,190 @@ public class DealerServiceImpl implements DealerService {
                 .role(savedDealer.getRole().name())
                 .createdAt(savedDealer.getCreatedAt())
                 .build();
+    }
+
+    // =====================================
+    // SEND OTP
+    // =====================================
+
+    @Override
+    public String sendOtp(String email) {
+
+        Optional<Dealer> optionalDealer =
+                dealerRepository.findByEmail(email);
+
+        if (optionalDealer.isEmpty()) {
+            return "Dealer not found";
+        }
+
+        Dealer dealer = optionalDealer.get();
+
+        // =====================================
+        // CHECK 2 MINUTE LIMIT
+        // =====================================
+
+        if (dealer.getOtpGeneratedTime() != null) {
+
+            LocalDateTime otpExpireTime =
+                    dealer.getOtpGeneratedTime()
+                            .plusMinutes(2);
+
+            if (LocalDateTime.now()
+                    .isBefore(otpExpireTime)) {
+
+                long secondsLeft =
+                        Duration.between(
+                                LocalDateTime.now(),
+                                otpExpireTime
+                        ).getSeconds();
+
+                return "Please wait "
+                        + secondsLeft +
+                        " seconds before requesting new OTP";
+            }
+        }
+
+        // =====================================
+        // GENERATE OTP
+        // =====================================
+
+        int otp =
+                (int) (Math.random() * 900000) + 100000;
+
+        dealer.setOtp(String.valueOf(otp));
+
+        dealer.setOtpGeneratedTime(
+                LocalDateTime.now()
+        );
+
+        dealerRepository.save(dealer);
+
+        // =====================================
+        // SEND MAIL
+        // =====================================
+
+        String subject = "Forgot Password OTP";
+
+        String body =
+                "Dear " + dealer.getFullName() + ",\n\n" +
+
+                        "We received a request to reset your password.\n\n" +
+
+                        "Your OTP is : " + otp + "\n\n" +
+
+                        "This OTP is valid for 5 minutes.\n\n" +
+
+                        "Regards,\n" +
+                        "Caryanam Finserv Team";
+
+        emailService.sendMail(
+                dealer.getEmail(),
+                subject,
+                body
+        );
+
+        return "OTP sent successfully";
+    }
+
+    // =====================================
+    // VERIFY OTP
+    // =====================================
+
+    @Override
+    public String verifyOtp(VerifyOtpDTO dto) {
+
+        Optional<Dealer> optionalDealer =
+                dealerRepository.findByEmail(dto.getEmail());
+
+        if (optionalDealer.isEmpty()) {
+            return "Dealer not found";
+        }
+
+        Dealer dealer = optionalDealer.get();
+
+        if (dealer.getOtp() == null) {
+            return "OTP not found";
+        }
+
+        if (!dealer.getOtp().equals(dto.getOtp())) {
+            return "Invalid OTP";
+        }
+
+        if (dealer.getOtpGeneratedTime()
+                .plusMinutes(5)
+                .isBefore(LocalDateTime.now())) {
+
+            return "OTP expired";
+        }
+
+        dealer.setIsOtpVerified(true);
+
+        dealerRepository.save(dealer);
+
+        return "OTP verified successfully";
+    }
+
+    // =====================================
+    // RESET PASSWORD
+    // =====================================
+
+    @Override
+    public String resetPassword(ResetPasswordDTO dto) {
+
+        Optional<Dealer> optionalDealer =
+                dealerRepository.findByEmail(dto.getEmail());
+
+        if (optionalDealer.isEmpty()) {
+            return "Dealer not found";
+        }
+
+        Dealer dealer = optionalDealer.get();
+
+        if (dealer.getIsOtpVerified() == null
+                || !dealer.getIsOtpVerified()) {
+
+            return "Please verify OTP first";
+        }
+
+        // update password
+        dealer.setPassword(
+                passwordEncoder.encode(
+                        dto.getNewPassword()
+                )
+        );
+
+        // clear otp data
+        dealer.setOtp(null);
+        dealer.setOtpGeneratedTime(null);
+        dealer.setIsOtpVerified(false);
+
+        dealerRepository.save(dealer);
+
+        // =====================================
+        // SEND MAIL
+        // =====================================
+
+        String subject =
+                "Password Reset Successfully";
+
+        String body =
+                "Dear " + dealer.getFullName() + ",\n\n" +
+
+                        "Your password has been reset successfully.\n\n" +
+
+                        "If you did not perform this action, " +
+                        "please contact support immediately.\n\n" +
+
+                        "Regards,\n" +
+                        "Caryanam Finserv Team";
+
+        emailService.sendMail(
+                dealer.getEmail(),
+                subject,
+                body
+        );
+
+        return "Password reset successfully";
     }
 
 
