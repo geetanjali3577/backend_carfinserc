@@ -30,7 +30,7 @@ public class User {
     // DEALER or INDIVIDUAL
     @Enumerated(EnumType.STRING)
     private RegistrationType registrationType;
-    
+
     // Dealer Code
     private String dealerCode;
 
@@ -49,6 +49,8 @@ public class User {
     )
     private String applicationId;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private PersonalInfo personalInfo;
 
     @PrePersist
     public void prePersist() {

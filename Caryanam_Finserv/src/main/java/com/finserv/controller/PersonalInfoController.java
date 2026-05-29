@@ -1,6 +1,7 @@
 package com.finserv.controller;
 
 import com.finserv.dto.PersonalInfoRequestDTO;
+import com.finserv.dto.PersonalInfoResponseDTO;
 import com.finserv.dto.ResponseDto;
 import com.finserv.exception.BadRequestException;
 import com.finserv.service.PersonalInfoService;
@@ -9,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("api/personal-info")
@@ -231,5 +234,44 @@ public class PersonalInfoController {
                 )
         );
     }
+
+    // UPADTED INFO
+
+    @PutMapping("/update/{userId}")
+    public ResponseEntity<ResponseDto<PersonalInfoResponseDTO>> updatePersonalInfo(
+            @PathVariable Long userId,
+            @RequestBody PersonalInfoRequestDTO dto
+    ) {
+
+        PersonalInfoResponseDTO response =
+                personalInfoService.updatePersonalInfo(userId, dto);
+
+        return ResponseEntity.ok(
+                new ResponseDto<>(200, "Personal Info Updated Successfully", response)
+        );
+    }
+
+
+
+    @GetMapping("/all")
+    public ResponseEntity<ResponseDto<List<PersonalInfoResponseDTO>>> getAllPersonalInfo() {
+
+        List<PersonalInfoResponseDTO> response =
+                personalInfoService.getAllPersonalInfo();
+
+        if (response.isEmpty()) {
+            return ResponseEntity.ok(
+                    new ResponseDto<>(200, "No Data Found", response)
+            );
+        }
+
+        return ResponseEntity.ok(
+                new ResponseDto<>(200, "All Personal Info Fetched Successfully", response)
+        );
+    }
+
+
+
+
 }
 

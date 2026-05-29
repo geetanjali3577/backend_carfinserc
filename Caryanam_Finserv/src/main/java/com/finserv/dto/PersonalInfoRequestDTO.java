@@ -9,6 +9,8 @@ public class PersonalInfoRequestDTO {
 
     private String address;
 
+    private String mobileNumber;
+
     private String city;
 
     private String state;

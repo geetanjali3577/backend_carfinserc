@@ -1,5 +1,6 @@
 package com.finserv.entity;
 
+import com.finserv.enums.DocumentStatus;
 import com.finserv.enums.DocumentType;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -15,7 +16,9 @@ public class Document {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long documentId;
 
-    private Long userId;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @Enumerated(EnumType.STRING)
     @Column(length = 100)
@@ -27,8 +30,10 @@ public class Document {
 
     private Long fileSize;
 
-    private String status;
+    private String remarks;
 
+    @Enumerated(EnumType.STRING)
+    private DocumentStatus status;
     @Lob
     @Column(columnDefinition = "LONGBLOB")
     private byte[] fileData;

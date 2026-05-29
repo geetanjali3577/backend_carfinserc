@@ -14,7 +14,7 @@ public class PersonalInfo {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long personalInfoId;
 
-    private Long userId;
+
 
     private String fullName;
 
@@ -32,6 +32,10 @@ public class PersonalInfo {
     private String pincode;
 
     private Double loanAmount;
+
+    @OneToOne
+    @JoinColumn(name = "user_Id")
+    private User user;
 
     private LocalDateTime createdAt;
 }
