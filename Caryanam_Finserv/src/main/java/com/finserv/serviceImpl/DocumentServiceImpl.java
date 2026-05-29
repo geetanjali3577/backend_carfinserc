@@ -1,5 +1,6 @@
 package com.finserv.serviceImpl;
 
+import com.finserv.dto.DocumentCountDTO;
 import com.finserv.dto.DocumentResponseDTO;
 import com.finserv.dto.RemarkRequestDTO;
 import com.finserv.entity.Document;
@@ -57,7 +58,7 @@ public class DocumentServiceImpl implements DocumentService {
 
             Document document = new Document();
 
-            // 🔥 IMPORTANT RELATION FIX
+
             document.setUser(user);
 
             document.setDocumentType(type);
@@ -161,8 +162,8 @@ public class DocumentServiceImpl implements DocumentService {
         );
 
         dto.setFileName(doc.getFileName());
-        dto.setContentType(doc.getContentType());
-        dto.setFileSize(doc.getFileSize());
+       // dto.setContentType(doc.getContentType());
+       // dto.setFileSize(doc.getFileSize());
         dto.setStatus(String.valueOf(doc.getStatus()));
         dto.setUploadedAt(doc.getUploadedAt());
 
@@ -251,4 +252,41 @@ public class DocumentServiceImpl implements DocumentService {
                 .findByStatus(DocumentStatus.VERIFIED);
     }
 
+
+    //Upload Document count
+
+    @Override
+    public DocumentCountDTO getDocumentCounts(Long userId) {
+
+        long pending =
+                documentRepository.countByUserUserIdAndStatus(
+                        userId,
+                        DocumentStatus.PENDING
+                );
+
+        long verified =
+                documentRepository.countByUserUserIdAndStatus(
+                        userId,
+                        DocumentStatus.VERIFIED
+                );
+
+        long approved =
+                documentRepository.countByUserUserIdAndStatus(
+                        userId,
+                        DocumentStatus.APPROVED
+                );
+
+        long rejected =
+                documentRepository.countByUserUserIdAndStatus(
+                        userId,
+                        DocumentStatus.REJECTED
+                );
+
+        return new DocumentCountDTO(
+                pending,
+                verified,
+                approved,
+                rejected
+        );
+    }
 }

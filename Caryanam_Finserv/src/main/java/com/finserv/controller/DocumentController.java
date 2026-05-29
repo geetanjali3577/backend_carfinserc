@@ -1,5 +1,6 @@
 package com.finserv.controller;
 
+import com.finserv.dto.DocumentCountDTO;
 import com.finserv.dto.DocumentResponseDTO;
 import com.finserv.dto.RemarkRequestDTO;
 import com.finserv.dto.ResponseDto;
@@ -328,7 +329,7 @@ public class DocumentController {
         );
     }
 
-    // 🔹 GET VERIFIED DOCUMENTS TO ADMIN
+    //  GET VERIFIED DOCUMENTS TO ADMIN
     @GetMapping("/verified")
     public ResponseEntity<ResponseDto> getVerifiedDocuments() {
 
@@ -340,6 +341,22 @@ public class DocumentController {
                         200,
                         "Verified Documents Fetched Successfully",
                         verifiedDocs
+                )
+        );
+    }
+
+    @GetMapping("/count/{userId}")
+    public ResponseEntity<ResponseDto> getDocumentCounts(
+            @PathVariable Long userId) {
+
+        DocumentCountDTO counts =
+                documentService.getDocumentCounts(userId);
+
+        return ResponseEntity.ok(
+                new ResponseDto<>(
+                        200,
+                        "Document Counts Fetched Successfully",
+                        counts
                 )
         );
     }
