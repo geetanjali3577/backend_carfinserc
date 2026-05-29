@@ -13,6 +13,11 @@ public interface DocumentRepository
         extends JpaRepository<Document, Long> {
     List<Document> findByUser_UserId(Long userId);
 
+    long countByUserUserIdAndStatus(
+            Long userId,
+            DocumentStatus status
+    );
+
     List<Document> findByStatus(DocumentStatus status);
     boolean existsByUser_UserIdAndDocumentType(Long userId, DocumentType documentType);
 }

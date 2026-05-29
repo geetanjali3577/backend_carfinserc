@@ -1,5 +1,6 @@
 package com.finserv.service;
 
+import com.finserv.dto.DocumentCountDTO;
 import com.finserv.dto.DocumentResponseDTO;
 import com.finserv.dto.RemarkRequestDTO;
 import com.finserv.entity.Document;
@@ -28,6 +29,8 @@ public interface DocumentService {
     List<Document> getPendingDocuments();
 
     List<Document> getVerifiedDocuments();
+
+    DocumentCountDTO getDocumentCounts(Long userId);
 
     Object uploadUnified(
 

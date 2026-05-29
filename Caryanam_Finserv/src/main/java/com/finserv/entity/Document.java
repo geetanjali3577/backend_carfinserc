@@ -1,5 +1,6 @@
 package com.finserv.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.finserv.enums.DocumentStatus;
 import com.finserv.enums.DocumentType;
 import jakarta.persistence.*;
@@ -15,7 +16,7 @@ public class Document {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long documentId;
-
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
@@ -34,6 +35,7 @@ public class Document {
 
     @Enumerated(EnumType.STRING)
     private DocumentStatus status;
+    @JsonIgnore
     @Lob
     @Column(columnDefinition = "LONGBLOB")
     private byte[] fileData;
