@@ -46,10 +46,13 @@ public class AuthServiceImpl implements AuthService {
                     user.getUserId(),
                     user.getFullName(),
                     user.getEmail(),
-                    user.getRole()
+                    user.getRole(),
+                    user.getApplicationId(),
+                    null
             );
             return new LoginResponseDTO( token);
         }
+
 
         // BANK LOGIN
         Dealer dealer = bankRepository.findByEmail(request.getEmail()).orElse(null);
@@ -58,7 +61,10 @@ public class AuthServiceImpl implements AuthService {
                     dealer.getDealerId(),
                     dealer.getFullName(),
                     dealer.getEmail(),
-                    dealer.getRole()
+                    dealer.getRole(),
+                    null,
+                    dealer.getDealerCode()
+
             );
             return new LoginResponseDTO(token);
         }
@@ -71,7 +77,7 @@ public class AuthServiceImpl implements AuthService {
                     admin.getAdminId(),
                     admin.getFullName(),
                     admin.getEmail(),
-                    admin.getRole()
+                    admin.getRole(),   null,   null
             );
             return new LoginResponseDTO( token);
         }

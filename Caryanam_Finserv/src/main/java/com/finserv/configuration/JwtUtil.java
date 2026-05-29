@@ -25,13 +25,15 @@ public class JwtUtil {
             Long id,
             String name,
             String username,
-            Role role) {
+            Role role, String applicationId, String dealerCode) {
 
         return Jwts.builder()
                 .setSubject(username)
                 .claim("id", id)
                 .claim("name", name)
                 .claim("role", role.name())
+                .claim("applicationId", applicationId)
+                .claim("dealerCode", dealerCode)
                 .setIssuedAt(new Date())
                 .setExpiration(
                         new Date(
