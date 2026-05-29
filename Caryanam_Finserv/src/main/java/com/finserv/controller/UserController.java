@@ -1,5 +1,6 @@
 package com.finserv.controller;
 
+import com.finserv.dto.PersonalInfoResponseDTO;
 import com.finserv.dto.ResponseDto;
 import com.finserv.dto.UserRegisterDTO;
 import com.finserv.dto.UserResponseDTO;
@@ -407,4 +408,23 @@ public class UserController {
         );
     }
     */
+
+
+    @GetMapping("/search")
+    public ResponseEntity<ResponseDto<List<UserResponseDTO>>> searchByName(
+            @RequestParam String name
+    ) {
+
+        List<UserResponseDTO> response = userService.searchByName(name);
+
+        if (response.isEmpty()) {
+            return ResponseEntity.ok(
+                    new ResponseDto<>(200, "No Users Found with given name", response)
+            );
+        }
+
+        return ResponseEntity.ok(
+                new ResponseDto<>(200, "Users Found Successfully", response)
+        );
+    }
 }

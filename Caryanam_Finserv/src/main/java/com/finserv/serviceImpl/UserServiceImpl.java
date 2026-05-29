@@ -304,6 +304,19 @@ public class UserServiceImpl implements UserService {
 
         return mapToDTO(user);
     }
+
+    @Override
+    public List<UserResponseDTO> searchByName(String name) {
+
+        List<User> users =
+                userRepository.findByFullNameContainingIgnoreCase(name);
+
+        return users.stream()
+                .map(this::mapToDTO)
+                .toList();
+    }
+
+
   /*  @Override
     public void deleteUser(Long id) {
 
@@ -352,5 +365,7 @@ public class UserServiceImpl implements UserService {
 
         return dto;
     }
+
+
 
 }

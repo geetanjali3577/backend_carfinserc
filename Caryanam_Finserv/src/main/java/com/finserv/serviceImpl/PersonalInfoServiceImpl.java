@@ -2,6 +2,7 @@ package com.finserv.serviceImpl;
 
 import com.finserv.dto.PersonalInfoRequestDTO;
 import com.finserv.dto.PersonalInfoResponseDTO;
+import com.finserv.dto.UserResponseDTO;
 import com.finserv.entity.PersonalInfo;
 import com.finserv.entity.User;
 import com.finserv.exception.BadRequestException;
@@ -14,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -161,4 +163,65 @@ public class PersonalInfoServiceImpl
 
         return response;
     }
+
+
+    @Override
+    public List<PersonalInfoResponseDTO> getAllPersonalInfo() {
+
+        List<PersonalInfo> list = personalInfoRepository.findAll();
+
+        return list.stream().map(info -> {
+
+            PersonalInfoResponseDTO dto = new PersonalInfoResponseDTO();
+
+            dto.setPersonalInfoId(info.getPersonalInfoId());
+
+            // USER INFO (JOIN)
+            if (info.getUser() != null) {
+                dto.setUserId(info.getUser().getUserId());
+                dto.setFullName(info.getUser().getFullName());
+                dto.setEmail(info.getUser().getEmail());
+            }
+
+            // PERSONAL INFO
+            dto.setMobileNumber(info.getMobileNumber());
+            dto.setAddress(info.getAddress());
+            dto.setCity(info.getCity());
+            dto.setState(info.getState());
+            dto.setPincode(info.getPincode());
+            dto.setLoanAmount(info.getLoanAmount());
+            dto.setCreatedAt(info.getCreatedAt());
+
+            return dto;
+
+        }).toList();
+    }
+
+
+    @Override
+    public PersonalInfoResponseDTO getByUserId(Long userId) {
+
+        PersonalInfo info = personalInfoRepository
+                .findByUser_UserId(userId)
+                .orElseThrow(() -> new RuntimeException("Personal Info Not Found"));
+
+        PersonalInfoResponseDTO dto = new PersonalInfoResponseDTO();
+
+        dto.setPersonalInfoId(info.getPersonalInfoId());
+        dto.setUserId(info.getUser().getUserId());
+
+        dto.setFullName(info.getFullName());
+        dto.setEmail(info.getEmail());
+        dto.setMobileNumber(info.getMobileNumber());
+
+        dto.setAddress(info.getAddress());
+        dto.setCity(info.getCity());
+        dto.setState(info.getState());
+        dto.setPincode(info.getPincode());
+        dto.setLoanAmount(info.getLoanAmount());
+        dto.setCreatedAt(info.getCreatedAt());
+
+        return dto;
+    }
+
 }

@@ -16,6 +16,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     boolean existsByMobileNumber(String mobileNumber);
 
+    List<User> findByFullNameContainingIgnoreCase(String fullName);
 
     Optional<User> findTopByOrderByUserIdDesc();
 

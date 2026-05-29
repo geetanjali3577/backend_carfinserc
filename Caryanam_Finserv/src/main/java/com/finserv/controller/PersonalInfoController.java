@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("api/personal-info")
 @RequiredArgsConstructor
@@ -248,5 +250,28 @@ public class PersonalInfoController {
                 new ResponseDto<>(200, "Personal Info Updated Successfully", response)
         );
     }
+
+
+
+    @GetMapping("/all")
+    public ResponseEntity<ResponseDto<List<PersonalInfoResponseDTO>>> getAllPersonalInfo() {
+
+        List<PersonalInfoResponseDTO> response =
+                personalInfoService.getAllPersonalInfo();
+
+        if (response.isEmpty()) {
+            return ResponseEntity.ok(
+                    new ResponseDto<>(200, "No Data Found", response)
+            );
+        }
+
+        return ResponseEntity.ok(
+                new ResponseDto<>(200, "All Personal Info Fetched Successfully", response)
+        );
+    }
+
+
+
+
 }
 

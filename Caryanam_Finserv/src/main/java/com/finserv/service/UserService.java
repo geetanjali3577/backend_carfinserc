@@ -26,5 +26,7 @@ public interface UserService {
 
     UserResponseDTO updateUser(Long id, UserRegisterDTO dto);
 
+    List<UserResponseDTO> searchByName(String name);
+
    // void deleteUser(Long id);
 }

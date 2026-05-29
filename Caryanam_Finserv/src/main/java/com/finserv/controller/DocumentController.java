@@ -1,6 +1,10 @@
 package com.finserv.controller;
 
+import com.finserv.dto.DocumentResponseDTO;
+import com.finserv.dto.RemarkRequestDTO;
 import com.finserv.dto.ResponseDto;
+import com.finserv.entity.Document;
+import com.finserv.enums.DocumentStatus;
 import com.finserv.enums.DocumentType;
 import com.finserv.exception.BadRequestException;
 import com.finserv.service.DocumentService;
@@ -11,6 +15,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/documents")
@@ -184,4 +190,177 @@ public class DocumentController {
                 )
         );
     }
+
+    // =====================================
+    // 2. GET ALL DOCUMENTS BY USER
+    // =====================================
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<ResponseDto<List<DocumentResponseDTO>>> getByUserId(
+            @PathVariable Long userId
+    ) {
+
+        List<DocumentResponseDTO> response =
+                documentService.getDocumentsByUserId(userId);
+
+        return ResponseEntity.ok(
+                new ResponseDto<>(
+                        200,
+                        "Documents Fetched Successfully",
+                        response
+                )
+        );
+    }
+
+    // =====================================
+    // 3. GET SINGLE DOCUMENT
+    // =====================================
+    @GetMapping("/{documentId}")
+    public ResponseEntity<ResponseDto<DocumentResponseDTO>> getByDocumentId(
+            @PathVariable Long documentId
+    ) {
+
+        DocumentResponseDTO response =
+                documentService.getDocumentById(documentId);
+
+        return ResponseEntity.ok(
+                new ResponseDto<>(
+                        200,
+                        "Document Fetched Successfully",
+                        response
+                )
+        );
+    }
+
+
+    @GetMapping("/download/{documentId}")
+    public ResponseEntity<byte[]> downloadDocument(@PathVariable Long documentId) {
+
+        Document doc = documentService.getEntityById(documentId);
+
+        return ResponseEntity.ok()
+                .header("Content-Disposition", "attachment; filename=" + doc.getFileName())
+                .header("Content-Type", doc.getContentType())
+                .body(doc.getFileData());
+    }
+
+
+    @PutMapping("/status/{documentId}")
+    public ResponseEntity<ResponseDto<String>> updateStatus(
+
+            @PathVariable Long documentId,
+            @RequestParam DocumentStatus status
+    ) {
+
+        documentService.updateStatus(documentId, status);
+
+        return ResponseEntity.ok(
+                new ResponseDto<>(
+                        200,
+                        "Document Status Updated",
+                        "SUCCESS"
+                )
+        );
+    }
+
+
+    @GetMapping("/preview/{documentId}")
+    public ResponseEntity<byte[]> previewDocument(@PathVariable Long documentId) {
+
+        Document doc = documentService.getEntityById(documentId);
+
+        return ResponseEntity.ok()
+                .header("Content-Type", doc.getContentType())
+                .header("Content-Disposition", "inline; filename=" + doc.getFileName())
+                .body(doc.getFileData());
+    }
+
+
+    @DeleteMapping("/{documentId}")
+    public ResponseEntity<ResponseDto> deleteDocument(
+            @PathVariable Long documentId) {
+
+        documentService.deleteDocument(documentId);
+
+        return ResponseEntity.ok(
+                new ResponseDto<>(
+                        200,
+                        "Document Deleted Successfully",
+                        "Deleted Document Id: " + documentId
+                )
+        );
+    }
+
+
+    //  UPDATE DOCUMENT
+    @PutMapping("/{documentId}")
+    public ResponseEntity<ResponseDto> updateDocument(
+
+            @PathVariable Long documentId,
+            @RequestParam("file") MultipartFile file
+    ) {
+
+        Document document = documentService.updateDocument(documentId, file);
+
+        return ResponseEntity.ok(
+                new ResponseDto<>(
+                        200,
+                        "Document Updated Successfully",
+                        document
+                )
+        );
+    }
+
+    //  ADD REMARKS
+    @PutMapping("/{documentId}/remarks")
+    public ResponseEntity<ResponseDto> addRemarks(
+
+            @PathVariable Long documentId,
+            @RequestBody RemarkRequestDTO dto
+    ) {
+
+        Document document =
+                documentService.addRemarks(documentId, dto);
+
+        return ResponseEntity.ok(
+                new ResponseDto<>(
+                        200,
+                        "Remarks Added Successfully",
+                        document
+                )
+        );
+    }
+
+    // GET PENDING DOCUMENTS
+    @GetMapping("/pending")
+    public ResponseEntity<ResponseDto> getPendingDocuments() {
+
+        List<Document> pendingDocs =
+                documentService.getPendingDocuments();
+
+        return ResponseEntity.ok(
+                new ResponseDto<>(
+                        200,
+                        "Pending Documents Fetched Successfully",
+                        pendingDocs
+                )
+        );
+    }
+
+    // 🔹 GET VERIFIED DOCUMENTS
+    @GetMapping("/verified")
+    public ResponseEntity<ResponseDto> getVerifiedDocuments() {
+
+        List<Document> verifiedDocs =
+                documentService.getVerifiedDocuments();
+
+        return ResponseEntity.ok(
+                new ResponseDto<>(
+                        200,
+                        "Verified Documents Fetched Successfully",
+                        verifiedDocs
+                )
+        );
+    }
 }
+
+
