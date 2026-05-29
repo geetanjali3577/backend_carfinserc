@@ -19,7 +19,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<User> findByFullNameContainingIgnoreCase(String fullName);
 
     Optional<User> findTopByOrderByUserIdDesc();
-
+    Optional<User> findByMobileNumber(String mobileNumber);
 
     @Query("SELECT u FROM User u LEFT JOIN FETCH u.personalInfo")
     List<User> findAllUsersWithPersonalInfo();
